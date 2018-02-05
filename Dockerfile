@@ -1,26 +1,45 @@
-FROM asciidoctor/docker-asciidoctor
+FROM registry.gitlab.com/pages/hugo:latest
 MAINTAINER tacid@tacid.kiev.ua
 
-# Download and install hugo
-ENV HUGO_VERSION 0.35
-ENV HUGO_BINARY hugo_${HUGO_VERSION}_Linux-64bit.tar.gz
+ARG ASCIIDOCTOR_VERSION="1.5.6.1"
+ENV asciidoctor_version=${ASCIIDOCTOR_VERSION}
 
-RUN curl -fsSL https://github.com/spf13/hugo/releases/download/v${HUGO_VERSION}/${HUGO_BINARY} -o /tmp/hugo.tar.gz \
- 	&& tar -xvzf /tmp/hugo.tar.gz -C /tmp/ \
-	&& mv /tmp/hugo /usr/bin/hugo \
-	&& rm -rf /tmp/hugo*
-
-# Create working directory
-RUN mkdir /srv/site
-
-# Expose default hugo port
-EXPOSE 1313
-
-# Automatically build site
-ENV HUGO_BASE_URL http://localhost:1313/
-CMD hugo server -b ${HUGO_BASE_URL} --bind=0.0.0.0 -ws .
-
-WORKDIR /srv/site
-VOLUME /srv/site
-
-CMD ["/bin/bash"]
+RUN apk add --no-cache \
+    bash \
+    curl \
+    ca-certificates \
+    findutils \
+    graphviz \
+    make \
+    openjdk8-jre \
+    py2-pillow \
+    py-setuptools \
+    python2 \
+    ruby \
+    ruby-mathematical \
+    ruby-pygments \
+    ttf-liberation \
+    unzip \
+    which \
+  && apk add --no-cache \
+    --repository https://nl.alpinelinux.org/alpine/edge/community \
+    font-bakoma-ttf \
+  && apk add --no-cache --virtual .makedepends \
+    build-base \
+    libxml2-dev \
+    python2-dev \
+    py2-pip \
+    ruby-dev \
+  && gem install --no-document asciidoctor --version "${asciidoctor_version}" \
+  && gem install --no-document asciidoctor-epub3 --version 1.5.0.alpha.7 \
+  && gem install --no-document asciidoctor-pdf --version 1.5.0.alpha.16 \
+  && gem install --no-document epubcheck --version 3.0.1 \
+  && gem install --no-document kindlegen --version 3.0.3 \
+  && gem install --no-document asciidoctor-revealjs --version 1.1.1 \
+  && gem install --no-document asciidoctor-diagram \
+  && gem install --no-document asciidoctor-confluence \
+  && gem install --no-document asciidoctor-mathematical \
+  && gem install --no-document rake rouge coderay thread_safe slim haml tilt \
+  && pip install --no-cache-dir --upgrade pip \
+  && pip install --no-cache-dir seqdiag actdiag nwdiag 'blockdiag[pdf]' \
+  && apk del -r --no-cache .makedepends
