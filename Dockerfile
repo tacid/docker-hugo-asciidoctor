@@ -41,5 +41,5 @@ RUN apk add --no-cache \
   && gem install --no-document asciidoctor-mathematical \
   && gem install --no-document rake rouge coderay thread_safe slim haml tilt \
   && pip install --no-cache-dir --upgrade pip \
-  && pip install --no-cache-dir seqdiag actdiag nwdiag 'blockdiag[pdf]' \
+  && pip install --no-cache-dir seqdiag actdiag nwdiag blockdiagcontrib-cisco 'blockdiag[pdf]' \
   && apk del -r --no-cache .makedepends
